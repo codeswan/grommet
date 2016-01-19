@@ -60,6 +60,8 @@ a,
       }
 
       &:hover:not(.anchor--disabled) {
+        color: $control-brand-color;
+
         > .control-icon {
           transform: translateX(round($inuit-base-spacing-unit * 0.125));
           stroke: $control-brand-color;
