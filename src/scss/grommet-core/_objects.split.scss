@@ -6,7 +6,7 @@
 
   // Used by Split.js to determine when to break.
   // Align with responsive settings used for $breakpoints.
-  &:after {
+  &::after {
     position: absolute;
     left: 0px;
     content: ' ';

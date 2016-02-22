@@ -58,7 +58,7 @@
   &--1-1 {
     width: calc(25% - #{halve($inuit-base-spacing-unit)});
 
-    &:after {
+    &::after {
       padding-top: 100%;
       display: block;
       content: '';
@@ -72,7 +72,7 @@
   &--1-2 {
     width: calc(25% - #{halve($inuit-base-spacing-unit)});
 
-    &:after {
+    &::after {
       padding-top: calc(200% + #{halve($inuit-base-spacing-unit) * 5});
       display: block;
       content: '';
@@ -86,7 +86,7 @@
   &--2-1 {
     width: calc(50% - #{halve($inuit-base-spacing-unit)});
 
-    &:after {
+    &::after {
       padding-top: calc(50% - #{quarter($inuit-base-spacing-unit) * 5});
       display: block;
       content: '';
@@ -100,7 +100,7 @@
   &--2-2 {
     width: calc(50% - #{halve($inuit-base-spacing-unit)});
 
-    &:after {
+    &::after {
       padding-top: 100%;
       display: block;
       content: '';

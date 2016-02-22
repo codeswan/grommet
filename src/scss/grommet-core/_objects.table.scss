@@ -9,7 +9,7 @@
   td {
     display: block;
 
-    &:before {
+    &::before {
       font-weight: 100;
       @include inuit-font-size($control-font-size, $inuit-base-spacing-unit);
       content: attr(data-th);

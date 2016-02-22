@@ -7,7 +7,7 @@
   &:focus {
     outline: none;
 
-    &:not(.menu--expanded):after {
+    &:not(.menu--expanded)::after {
       content: '';
       position: absolute;
       top: 0px;
@@ -271,7 +271,7 @@
   &.box.box--separator-top {
     border-color: transparent;
 
-    &:before {
+    &::before {
       content: '';
       margin: halve($inuit-base-spacing-unit) $inuit-base-spacing-unit
         round($inuit-base-spacing-unit * 0.75);

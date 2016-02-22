@@ -128,7 +128,7 @@
   &--toggle {
 
     &:hover:not(.check-box--disabled) {
-      .check-box__control:after {
+      .check-box__control::after {
         content: "";
         border-color: $active-icon-color;
 
@@ -138,7 +138,7 @@
         }
       }
 
-      .check-box__input:checked + .check-box__control:after {
+      .check-box__input:checked + .check-box__control::after {
         content: "";
         border-color: $active-icon-color;
 
@@ -161,7 +161,7 @@
         background-color: $colored-meter-background-color;
       }
 
-      &:after {
+      &::after {
         content: "";
         display: block;
         position: absolute;
@@ -195,7 +195,7 @@
           }
         }
 
-        &:after {
+        &::after {
           content: "";
           background-color: #fff;
           border-color: $brand-color;

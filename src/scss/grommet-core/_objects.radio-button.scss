@@ -56,7 +56,7 @@
       }
     }
 
-    &:checked + .radio-button__control:after {
+    &:checked + .radio-button__control::after {
       content: "";
       display: block;
       position: absolute;

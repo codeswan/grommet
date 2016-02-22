@@ -126,7 +126,7 @@ input[type=range] {
     margin-top: - (round($control-size * 0.45));
   }
 
-  &::-webkit-slider-thumb:before {
+  &::-webkit-slider-thumb::before {
     content: "";
     position: absolute;
     left: -3000px;
@@ -141,7 +141,7 @@ input[type=range] {
     }
   }
 
-  &::-webkit-slider-thumb:after {
+  &::-webkit-slider-thumb::after {
     content: "";
     position: absolute;
     border: $control-border-width solid $brand-color;
@@ -157,7 +157,7 @@ input[type=range] {
     }
   }
 
-  &:hover::-webkit-slider-thumb:after {
+  &:hover::-webkit-slider-thumb::after {
     content: "";
     border-color: $active-icon-color;
 
@@ -186,7 +186,7 @@ input[type=range] {
     }
   }
 
-  &::hover::-moz-range-thumb {
+  &:hover::-moz-range-thumb {
     border-color: $active-icon-color;
 
     [class*="background-color-index-"]:not([class*="background-color-index-light"]) & {
