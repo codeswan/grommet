@@ -1,6 +1,7 @@
 // (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
 
 import React, { Component, PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import classnames from 'classnames';
 import KeyboardAccelerators from '../utils/KeyboardAccelerators';
 import DOMUtils from '../utils/DOM';
@@ -29,18 +30,29 @@ export default class Menu extends Component {
     this._onFocusControl = this._onFocusControl.bind(this);
     this._onBlurControl = this._onBlurControl.bind(this);
 
+    this._menuItems = [];
+    this._menuChildren = React.Children.map(this.props.children, (element, i) => {
+      return React.cloneElement(element, { ref: (c) => this._menuItems.push(c) });
+    });
+
+    this._totalSpace = 0;
+    this._numOfItems = 0;
+    this._breakWidths = [];
+
     let inline;
     if (props.hasOwnProperty('inline')) {
       inline = props.inline;
     } else {
       inline = (! props.label && ! props.icon);
     }
+
     let responsive;
     if (props.hasOwnProperty('responsive')) {
       responsive = props.responsive;
     } else {
       responsive = (inline && 'row' === props.direction);
     }
+
     this.state = {
       // state may be 'collapsed', 'focused' or 'expanded' (active).
       state: 'collapsed',
@@ -58,6 +70,18 @@ export default class Menu extends Component {
         dropId: 'menu-drop-' + DOMUtils.generateId(controlElement),
         controlHeight: controlElement.clientHeight
       });
+    }
+
+    if (this._menuItems.length > 0 && this.state.inline && this.props.direction === 'row') {
+      this._menuItems.forEach((item) => {
+        this._totalSpace += ReactDOM.findDOMNode(item).offsetWidth;
+        this._numOfItems += 1;
+        this._breakWidths.push(this._totalSpace);
+      });
+
+      console.log(this._totalSpace);
+      console.log(this._numOfItems);
+      console.log(this._breakWidths);
     }
 
     if (this.state.responsive) {
@@ -264,7 +288,7 @@ export default class Menu extends Component {
         <Box {...boxProps} tag="nav" id={this.props.id}
           className={classes} primary={false}>
           {label}
-          {this.props.children}
+          {this._menuChildren}
         </Box>
       );
 
