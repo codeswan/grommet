@@ -18,6 +18,14 @@ import CSSClassnames from '../utils/CSSClassnames';
 
 const CLASS_ROOT = CSSClassnames.MENU;
 
+function outerWidth(el) {
+  var width = el.offsetWidth;
+  var style = getComputedStyle(el);
+
+  width += parseInt(style.marginLeft) + parseInt(style.marginRight);
+  return width;
+}
+
 export default class Menu extends Component {
 
   constructor(props, context) {
@@ -29,15 +37,13 @@ export default class Menu extends Component {
     this._onResponsive = this._onResponsive.bind(this);
     this._onFocusControl = this._onFocusControl.bind(this);
     this._onBlurControl = this._onBlurControl.bind(this);
+    this._onResize = this._onResize.bind(this);
 
     this._menuItems = [];
-    this._menuChildren = React.Children.map(this.props.children, (element, i) => {
-      return React.cloneElement(element, { ref: (c) => this._menuItems.push(c) });
-    });
-
     this._totalSpace = 0;
     this._numOfItems = 0;
     this._breakWidths = [];
+    this._numOfVisibleItems = 0;
 
     let inline;
     if (props.hasOwnProperty('inline')) {
@@ -49,8 +55,6 @@ export default class Menu extends Component {
     let responsive;
     if (props.hasOwnProperty('responsive')) {
       responsive = props.responsive;
-    } else {
-      responsive = (inline && 'row' === props.direction);
     }
 
     this.state = {
@@ -59,11 +63,15 @@ export default class Menu extends Component {
       initialInline: inline,
       inline: inline,
       responsive: responsive,
-      dropId: 'menuDrop'
+      dropId: 'menuDrop',
+      menuChildren: this.props.children.slice(),
+      moreMenuChildren: []
     };
   }
 
   componentDidMount () {
+    window.addEventListener('resize', this._onResize);
+
     if (this.refs.control) {
       let controlElement = this.refs.control.firstChild;
       this.setState({
@@ -74,7 +82,7 @@ export default class Menu extends Component {
 
     if (this._menuItems.length > 0 && this.state.inline && this.props.direction === 'row') {
       this._menuItems.forEach((item) => {
-        this._totalSpace += ReactDOM.findDOMNode(item).offsetWidth;
+        this._totalSpace += outerWidth(ReactDOM.findDOMNode(item));
         this._numOfItems += 1;
         this._breakWidths.push(this._totalSpace);
       });
@@ -82,6 +90,8 @@ export default class Menu extends Component {
       console.log(this._totalSpace);
       console.log(this._numOfItems);
       console.log(this._breakWidths);
+
+      // this._onResize();
     }
 
     if (this.state.responsive) {
@@ -150,6 +160,7 @@ export default class Menu extends Component {
   }
 
   componentWillUnmount () {
+    window.removeEventListener('resize', this._onResize);
     document.removeEventListener('click', this._onClose);
     KeyboardAccelerators.stopListeningToKeyboard(this);
     if (this._drop) {
@@ -157,6 +168,52 @@ export default class Menu extends Component {
     }
     if (this._responsive) {
       this._responsive.stop();
+    }
+  }
+
+  _renderMenuItems () {
+    return React.Children.map(this.state.menuChildren, (element, i) => {
+      return React.cloneElement(element, { ref: (c) => this._menuItems.push(c) });
+    });
+  }
+
+  _renderMoreMenuItems () {
+    return React.Children.map(this.state.moreMenuChildren, (element, i) => {
+      return React.cloneElement(element);
+    });
+  }
+
+  _onResize () {
+    if (!this.refs.nav) {
+      return;
+    }
+
+    const wrapperElement = ReactDOM.findDOMNode(this.refs.nav);
+    console.log(wrapperElement);
+    console.log(wrapperElement.offsetWidth);
+    const availableSpace = wrapperElement.offsetWidth - 10;
+    this._numOfVisibleItems = wrapperElement.children.length;
+    const requiredSpace = this._breakWidths[this._numOfVisibleItems - 1];
+
+    if (requiredSpace > availableSpace) {
+      let moreChild = this.state.menuChildren.pop();
+      this.state.moreMenuChildren.push(moreChild);
+      this.setState({
+        menuChildren: this.state.menuChildren,
+        moreMenuChildren: this.state.moreMenuChildren
+      });
+      this._numOfVisibleItems = this._numOfVisibleItems - 1;
+      this._onResize();
+
+    } else if (availableSpace > this._breakWidths[this._numOfVisibleItems]) {
+      let lessChild = this.state.moreMenuChildren.pop();
+      this.state.menuChildren.push(lessChild);
+      this.setState({
+        moreMenuChildren: this.state.moreMenuChildren,
+        menuChildren: this.state.menuChildren
+      });
+      this._numOfVisibleItems = this._numOfVisibleItems + 1;
+      this._onResize();
     }
   }
 
@@ -176,20 +233,21 @@ export default class Menu extends Component {
 
   _onResponsive (small) {
     // deactivate if we change resolutions
-    let newState = this.state.state;
-    if (this.state.state === 'expanded') {
-      newState = 'focused';
-    }
-    if (small) {
-      this.setState({inline: false, active: newState, controlCollapsed: true});
-    } else {
-      this.setState({
-        inline: this.state.initialInline,
-        active: newState,
-        state: 'collapsed',
-        controlCollapsed: false
-      });
-    }
+    // let newState = this.state.state;
+    // if (this.state.state === 'expanded') {
+    //   newState = 'focused';
+    // }
+
+    // if (small) {
+    //   this.setState({inline: false, active: newState, controlCollapsed: true});
+    // } else {
+    //   this.setState({
+    //     inline: this.state.initialInline,
+    //     active: newState,
+    //     state: 'collapsed',
+    //     controlCollapsed: false
+    //   });
+    // }
   }
 
   _onFocusControl () {
@@ -285,11 +343,18 @@ export default class Menu extends Component {
       }
 
       return (
-        <Box {...boxProps} tag="nav" id={this.props.id}
-          className={classes} primary={false}>
-          {label}
-          {this._menuChildren}
-        </Box>
+        <div>
+          <Box {...boxProps} tag="nav" ref="nav" id={this.props.id}
+            className={classes} primary={false}
+            responsive={
+              !this.props.inline || this.props.direction !== 'row'}>
+            {label}
+            {this._renderMenuItems()}
+          </Box>
+          <Box>
+            {this._renderMoreMenuItems()}
+          </Box>
+        </div>
       );
 
     } else {
