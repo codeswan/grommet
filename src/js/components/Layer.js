@@ -1,4 +1,4 @@
-// (C) Copyright 2014-2015 Hewlett Packard Enterprise Development LP
+// (C) Copyright 2014-2016 Hewlett Packard Enterprise Development LP
 
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
@@ -155,6 +155,7 @@ LayerContents.childContextTypes = {
 export default class Layer extends Component {
 
   componentDidMount () {
+    window.scrollTo(0, 0);
     this._originalFocusedElement = document.activeElement;
     this._addLayer();
     this._renderLayer();
@@ -168,7 +169,11 @@ export default class Layer extends Component {
 
     if (this._originalFocusedElement) {
       if (this._originalFocusedElement.focus) {
-        this._originalFocusedElement.focus();
+        // wait for the fixed positining to come back to normal
+        // see layer styling for reference
+        setTimeout(() => {
+          this._originalFocusedElement.focus();
+        }, 0);
       } else if (this._originalFocusedElement.parentNode &&
         this._originalFocusedElement.parentNode.focus) {
         // required for IE11 and Edge
@@ -216,8 +221,10 @@ export default class Layer extends Component {
     } else {
       beforeElement = document.body.firstChild;
     }
-    this._element =
-      beforeElement.parentNode.insertBefore(element, beforeElement);
+    if (beforeElement) {
+      this._element =
+        beforeElement.parentNode.insertBefore(element, beforeElement);
+    }
   }
 
   _handleAriaHidden (hideOverlay) {
@@ -233,16 +240,18 @@ export default class Layer extends Component {
   }
 
   _renderLayer () {
-    this._element.className = this._classesFromProps().join(' ');
-    var contents = (
-      <LayerContents {...this.props}
-        history={this.context.history}
-        intl={this.context.intl}
-        router={this.context.router}
-        store={this.context.store} />
-    );
-    ReactDOM.render(contents, this._element);
-    this._handleAriaHidden(this.props.hidden);
+    if (this._element) {
+      this._element.className = this._classesFromProps().join(' ');
+      var contents = (
+        <LayerContents {...this.props}
+          history={this.context.history}
+          intl={this.context.intl}
+          router={this.context.router}
+          store={this.context.store} />
+      );
+      ReactDOM.render(contents, this._element);
+      this._handleAriaHidden(this.props.hidden);
+    }
   }
 
   _removeLayer () {
