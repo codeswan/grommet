@@ -80,7 +80,9 @@ export default class Menu extends Component {
       });
     }
 
-    if (this._menuItems.length > 0 && this.state.inline && this.props.direction === 'row') {
+    if (this._menuItems.length > 0 &&
+      this.state.inline &&
+      this.props.direction === 'row') {
       this._menuItems.forEach((item) => {
         this._totalSpace += outerWidth(ReactDOM.findDOMNode(item));
         this._numOfItems += 1;
