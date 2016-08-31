@@ -31,9 +31,13 @@ export default class Menu extends Component {
     this._onBlurControl = this._onBlurControl.bind(this);
 
     this._menuItems = [];
-    this._menuChildren = React.Children.map(this.props.children, (element, i) => {
-      return React.cloneElement(element, { ref: (c) => this._menuItems.push(c) });
-    });
+    this._menuChildren = React.Children.map(
+      this.props.children, (element, i) => {
+        return React.cloneElement(
+          element, { ref: (c) => this._menuItems.push(c) }
+        );
+      }
+    );
 
     this._totalSpace = 0;
     this._numOfItems = 0;
@@ -72,7 +76,9 @@ export default class Menu extends Component {
       });
     }
 
-    if (this._menuItems.length > 0 && this.state.inline && this.props.direction === 'row') {
+    if (this._menuItems.length > 0 &&
+      this.state.inline &&
+      this.props.direction === 'row') {
       this._menuItems.forEach((item) => {
         this._totalSpace += ReactDOM.findDOMNode(item).offsetWidth;
         this._numOfItems += 1;
