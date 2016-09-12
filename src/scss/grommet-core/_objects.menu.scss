@@ -53,6 +53,14 @@
     display: inline-block;
     cursor: pointer;
   }
+
+  &--wrap {
+    flex: 1;
+
+    .#{$grommet-namespace}menu--inline {
+      flex: 1;
+    }
+  }
 }
 
 .#{$grommet-namespace}menu__control {
@@ -68,6 +76,7 @@
     }
   }
 
+  .#{$grommet-namespace}control-icon-up,
   .#{$grommet-namespace}control-icon-down {
     width: halve($inuit-base-spacing-unit);
 

@@ -13,6 +13,7 @@ import Box from './Box';
 import Button from './Button';
 import MenuDrop from './MenuDrop';
 import DropCaretIcon from './icons/base/Down';
+import UpCaretIcon from './icons/base/Up';
 import MoreIcon from './icons/base/More';
 import CSSClassnames from '../utils/CSSClassnames';
 
@@ -33,6 +34,8 @@ export default class Menu extends Component {
 
     this._onOpen = this._onOpen.bind(this);
     this._onClose = this._onClose.bind(this);
+    this._onOpenPriority = this._onOpenPriority.bind(this);
+    this._onClosePriority = this._onClosePriority.bind(this);
     this._onSink = this._onSink.bind(this);
     this._onResponsive = this._onResponsive.bind(this);
     this._onFocusControl = this._onFocusControl.bind(this);
@@ -180,9 +183,54 @@ export default class Menu extends Component {
   }
 
   _renderMoreMenuItems () {
-    return React.Children.map(this.state.moreMenuChildren, (element, i) => {
-      return React.cloneElement(element);
-    });
+    let menuLabel = "Menu";
+    if (this.state.menuChildren.length > 0) {
+      menuLabel = "More";
+    }
+
+    if (this.state.moreMenuChildren.length > 0 && this.state.priority === 'expanded') {
+      let control = (
+        <Button plain={true} className={`${CLASS_ROOT}__control`}
+          a11yTitle={menuLabel} label={menuLabel}
+          style={{lineHeight: this.state.controlHeight + 'px'}}
+          onClick={this._onClose}>
+          <span key="label" className={`${CLASS_ROOT}__control-label`}>
+            {menuLabel}
+          </span>
+          <UpCaretIcon key="caret" a11yTitle='menu-up'
+            a11yTitleId='menu-down-id' />
+        </Button>
+      );
+
+      return (
+        <MenuDrop {...this.context}
+          dropAlign={{ top: 'top' }}
+          size={this.props.size}
+          onClick={this._onClosePriority}
+          id={this.state.dropId}
+          control={control}>
+          {React.Children.map(this.state.moreMenuChildren.slice(0).reverse(), (element, i) => {
+            return React.cloneElement(element);
+          })}
+        </MenuDrop>
+      );
+    } else if (this.state.moreMenuChildren.length > 0) {
+
+      return (
+        <Button plain={true} className={`${CLASS_ROOT}__control`}
+          a11yTitle={menuLabel} label={menuLabel}
+          style={{lineHeight: this.state.controlHeight + 'px'}}
+          onClick={this._onOpenPriority}>
+          <span key="label" className={`${CLASS_ROOT}__control-label`}>
+            {menuLabel}
+          </span>
+          <DropCaretIcon key="caret" a11yTitle='menu-down'
+            a11yTitleId='menu-down-id' />
+        </Button>
+      );
+    } else {
+      return null;
+    }
   }
 
   _onResize () {
@@ -225,6 +273,14 @@ export default class Menu extends Component {
 
   _onClose () {
     this.setState({state: 'collapsed'});
+  }
+
+  _onOpenPriority () {
+    this.setState({priority: 'expanded'});
+  }
+
+  _onClosePriority () {
+    this.setState({priority: 'collapsed'});
   }
 
   _onSink (event) {
@@ -345,7 +401,7 @@ export default class Menu extends Component {
       }
 
       return (
-        <div>
+        <Box className={`${CLASS_ROOT}--wrap`} direction="row" responsive={false}>
           <Box {...boxProps} tag="nav" ref="nav" id={this.props.id}
             className={classes} primary={false}
             responsive={
@@ -356,7 +412,7 @@ export default class Menu extends Component {
           <Box>
             {this._renderMoreMenuItems()}
           </Box>
-        </div>
+        </Box>
       );
 
     } else {
